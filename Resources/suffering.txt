@@ -1,0 +1,4 @@
+5B
+Resources/sword 5B startup 2.png
+Resources/sword 5B active 2.png
+Resources/sword 5B recovery 2.png
