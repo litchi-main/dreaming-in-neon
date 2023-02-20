@@ -466,6 +466,8 @@ int main()
 
 	Attack none;
 
+	View camera(Vector2f(WINDOW_WIDTH / 2.f, WINDOW_HEIGHT / 2.f), Vector2f(720.f, 480.f));
+
 	while (app.isOpen())
 	{
 		Event e;
@@ -621,6 +623,9 @@ int main()
 		CornerCollision(player1, player2.AtCorner);
 		CornerCollision(player2, player1.AtCorner);
 
+		camera.setCenter(Vector2f((player1.x + player2.x) / 2.f, min(min(player1.y, player2.y), WINDOW_HEIGHT - 240.f)));
+		app.setView(camera);
+
 		sprPlayer1.setOrigin(player1.sprite.x, player1.sprite.y);
 		sprPlayer2.setOrigin(player2.sprite.x, player2.sprite.y);
 		sprPlayer1.setTexture(player1.sprite.tex);
@@ -681,6 +686,5 @@ int main()
 		text.setString("DRAW");
 	}
 	app.draw(text);
-	while (!Keyboard::isKeyPressed(Keyboard::Key::Enter));
 	return 0;
 }
