@@ -178,6 +178,12 @@ void PlayerCornerCollision(Player& player1, Player& player2)
 	}
 }
 
+void CameraCollision(Player& player1, Player player2)
+{
+	if (abs(player1.x - player2.x) > CAMERA_WIDTH - 80)
+		player1.dx = 0;
+}
+
 void LoadSprite(PSprite& sprite, float x, float y, string file)
 {
 	sprite.x = x;
@@ -466,7 +472,7 @@ int main()
 
 	Attack none;
 
-	View camera(Vector2f(WINDOW_WIDTH / 2.f, WINDOW_HEIGHT / 2.f), Vector2f(720.f, 480.f));
+	View camera(Vector2f(WINDOW_WIDTH / 2.f, WINDOW_HEIGHT / 2.f), Vector2f(CAMERA_WIDTH, CAMERA_HEIGHT));
 
 	while (app.isOpen())
 	{
@@ -614,6 +620,9 @@ int main()
 			AirCollision(player2, player1);
 		}
 
+		CameraCollision(player1, player2);
+		CameraCollision(player2, player1);
+
 		player1.x += player1.dx;
 		player2.x += player2.dx;
 
@@ -623,7 +632,14 @@ int main()
 		CornerCollision(player1, player2.AtCorner);
 		CornerCollision(player2, player1.AtCorner);
 
-		camera.setCenter(Vector2f((player1.x + player2.x) / 2.f, min(min(player1.y, player2.y), WINDOW_HEIGHT - 240.f)));
+
+
+		float cameraX = (player1.x + player2.x) / 2.f;
+		if (cameraX < CAMERA_WIDTH / 2)
+			cameraX = CAMERA_WIDTH / 2;
+		else if (cameraX > WINDOW_WIDTH - CAMERA_WIDTH / 2)
+			cameraX = WINDOW_WIDTH - CAMERA_WIDTH / 2;
+		camera.setCenter(Vector2f(cameraX, min(min(player1.y, player2.y), WINDOW_HEIGHT - CAMERA_HEIGHT / 2.f)));
 		app.setView(camera);
 
 		sprPlayer1.setOrigin(player1.sprite.x, player1.sprite.y);
