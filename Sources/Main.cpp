@@ -410,11 +410,11 @@ int main()
 	tBackground.loadFromFile("Resources/background.png");
 	tPlatform.loadFromFile("Resources/platform.png");
 
-	map<string, Attack> p1n;
-	map<string, Attack> p2n;
-	LoadFrameData(p1n, "Resources/FrameData.txt", "Resources/sword  startup.png", 
+	map<string, Attack> p1a;
+	map<string, Attack> p2a;
+	LoadFrameData(p1a, "Resources/FrameData.txt", "Resources/sword  startup.png", 
 		"Resources/sword  active.png", "Resources/sword  recovery.png");
-	LoadFrameData(p2n, "Resources/FrameData.txt", "Resources/sword  startup 2.png", 
+	LoadFrameData(p2a, "Resources/FrameData.txt", "Resources/sword  startup 2.png", 
 		"Resources/sword  active 2.png", "Resources/sword  recovery 2.png");
 
 	sf::Font font;
@@ -444,8 +444,8 @@ int main()
 	player1.hurtbox[1].first = -35;
 	player1.hurtbox[0].second = 0;
 	player1.hurtbox[1].second = -150;
-	RectangleShape p1h(Vector2f(WINDOW_WIDTH / 5 * 2, 50));
-	p1h.setOrigin(WINDOW_WIDTH / 5 * 2, 0);
+	RectangleShape p1h(Vector2f(CAMERA_WIDTH / 7 * 3, 40));
+	p1h.setOrigin(CAMERA_WIDTH / 7 * 3, 0);
 	p1h.setFillColor(sf::Color(249, 215, 28));
 	
 
@@ -466,10 +466,9 @@ int main()
 	player2.hurtbox[1].first = 35;
 	player2.hurtbox[0].second = 0;
 	player2.hurtbox[1].second = -150;
-	RectangleShape p2h(Vector2f(WINDOW_WIDTH / 5 * 2, 50));
+	RectangleShape p2h(Vector2f(CAMERA_WIDTH / 7 * 3, 40));
 	p2h.setOrigin(0, 0);
 	p2h.setFillColor(sf::Color(249, 215, 28));
-
 	Attack none;
 
 	View camera(Vector2f(WINDOW_WIDTH / 2.f, WINDOW_HEIGHT / 2.f), Vector2f(CAMERA_WIDTH, CAMERA_HEIGHT));
@@ -506,7 +505,7 @@ int main()
 
 			if (player1.state == Nstate::neutral && player1.y == ground)
 			{
-				AttackInput(player1, p1n, none);
+				AttackInput(player1, p1a, none);
 				player1.dx = 0;
 				NeutralMovement(player1, *P1FWalk, *P1BWalk, *P1Idle, *P1Jmp);
 			}
@@ -522,7 +521,7 @@ int main()
 
 			if (player2.state == Nstate::neutral && player2.y == ground)
 			{
-				AttackInput(player2, p2n, none);
+				AttackInput(player2, p2a, none);
 				player2.dx = 0;
 				NeutralMovement(player2, *P2FWalk, *P2BWalk, *P2Idle, *P2Jmp);
 			}
@@ -540,7 +539,7 @@ int main()
 			else if (player1.move.active > 0)
 			{
 				if (player1.cancel)
-					AttackInput(player1, p1n, player1.move);
+					AttackInput(player1, p1a, player1.move);
 				player1.attack = Astate::attack;
 			}
 			else if (player1.move.recovery > 0)
@@ -555,7 +554,7 @@ int main()
 			else if (player2.move.active > 0)
 			{
 				if (player2.cancel)
-					AttackInput(player2, p2n, player2.move);
+					AttackInput(player2, p2a, player2.move);
 				player2.attack = Astate::attack;
 			}
 			else if (player2.move.recovery > 0)
@@ -633,13 +632,13 @@ int main()
 		CornerCollision(player2, player1.AtCorner);
 
 
-
-		float cameraX = (player1.x + player2.x) / 2.f;
+		float cameraX = (player1.x + player2.x) / 2.f,
+			cameraY = min(min(player1.y, player2.y), WINDOW_HEIGHT - CAMERA_HEIGHT / 2.f);
 		if (cameraX < CAMERA_WIDTH / 2)
 			cameraX = CAMERA_WIDTH / 2;
 		else if (cameraX > WINDOW_WIDTH - CAMERA_WIDTH / 2)
 			cameraX = WINDOW_WIDTH - CAMERA_WIDTH / 2;
-		camera.setCenter(Vector2f(cameraX, min(min(player1.y, player2.y), WINDOW_HEIGHT - CAMERA_HEIGHT / 2.f)));
+		camera.setCenter(Vector2f(cameraX, cameraY));
 		app.setView(camera);
 
 		sprPlayer1.setOrigin(player1.sprite.x, player1.sprite.y);
@@ -656,14 +655,14 @@ int main()
 			p1h.setScale(Vector2f(player1.health / 4500.0f, 1.0f));
 		else
 			p1h.setScale(Vector2f(0.0f, 1.0f));
-		p1h.setPosition((WINDOW_WIDTH - round_start) / 2, 40);
+		p1h.setPosition(cameraX - round_start / 5 + 20, cameraY - 200);
 		app.draw(p1h);
 
 		if (player2.health > 0)
 			p2h.setScale(Vector2f(player2.health / 4500.0f, 1.0f));
 		else
 			p2h.setScale(Vector2f(0.0f, 1.0f));
-		p2h.setPosition((WINDOW_WIDTH + round_start) / 2, 40);
+		p2h.setPosition(cameraX + round_start / 5 - 20, cameraY - 200);
 		app.draw(p2h);
 
 

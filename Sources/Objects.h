@@ -8,7 +8,6 @@
 #include <algorithm>
 
 
-
 struct PSprite
 {
 	float x, y; //sprite origin
