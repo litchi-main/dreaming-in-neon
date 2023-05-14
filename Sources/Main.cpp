@@ -181,7 +181,12 @@ void PlayerCornerCollision(Player& player1, Player& player2)
 void CameraCollision(Player& player1, Player player2)
 {
 	if (abs(player1.x - player2.x) > CAMERA_WIDTH - 80)
-		player1.dx = 0;
+	{
+		if (player1.side == side::left && player1.dx < 0)
+			player1.dx = 0;
+		if (player1.side == side::right && player1.dx > 0)
+			player1.dx = 0;
+	}
 }
 
 void LoadSprite(PSprite& sprite, float x, float y, string file)
@@ -646,7 +651,7 @@ int main()
 		sprPlayer1.setTexture(player1.sprite.tex);
 		sprPlayer2.setTexture(player2.sprite.tex);
 
-
+		sprBackground.setPosition(0, 100);
 		app.draw(sprBackground);
 		sprPlatform.setPosition(0, ground);
 		app.draw(sprPlatform);
