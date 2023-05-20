@@ -1,5 +1,53 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (doodle.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   Main.cpp
-  Utils.cpp
-  Generating Code...
-  doodle.vcxproj -> C:\Users\dangs\Documents\game project thingty\Debug\fighting game.exe
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(65,97): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(65,78): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(65,63): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(65,48): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.35.32215\include\utility(172,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+          and
+          [
+              _Ty1=float
+          ]
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(18): message : see reference to function template instantiation 'std::pair<float,float>::pair<int,int,0>(_Other1 &&,_Other2 &&) noexcept' being compiled
+          with
+          [
+              _Other1=int,
+              _Other2=int
+          ]
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(18,13): message : see reference to function template instantiation 'std::pair<float,float>::pair<int,int,0>(_Other1 &&,_Other2 &&) noexcept' being compiled
+          with
+          [
+              _Other1=int,
+              _Other2=int
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.35.32215\include\utility(172,54): warning C4244: 'initializing': conversion from '_Ty' to '_Ty2', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+          and
+          [
+              _Ty2=float
+          ]
+  doodle.vcxproj -> C:\Users\dangs\Documents\game project thingty\dreaming in neon\Debug\fighting game.exe
