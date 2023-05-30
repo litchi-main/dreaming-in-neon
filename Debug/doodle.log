@@ -1,21 +1,21 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (doodle.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   Main.cpp
-C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(87,133): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(105,133): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
               T=int
           ]
-C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(87,105): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(105,105): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
               T=int
           ]
-C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(87,81): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(105,81): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
               T=int
           ]
-C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(87,57): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(105,57): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
               T=int
@@ -51,22 +51,22 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.35.3221
               _Ty2=float
           ]
   Utils.cpp
-C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(87,133): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(105,133): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
               T=int
           ]
-C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(87,105): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(105,105): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
               T=int
           ]
-C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(87,81): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(105,81): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
               T=int
           ]
-C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(87,57): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\dangs\Documents\game project thingty\dreaming in neon\Sources\Objects.h(105,57): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
               T=int

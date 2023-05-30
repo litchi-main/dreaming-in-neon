@@ -26,12 +26,12 @@ public:
 		Xy2.first = C;
 		Xy2.second = D;
 	}
-	bool Collision(box*  other)
+	bool Collision(box& other)
 	{
-		if (this->Xy1.first <= other->Xy2.first &&
-			this->Xy2.first >= other->Xy1.first &&
-			this->Xy1.second >= other->Xy2.second &&
-			this->Xy2.second <= other->Xy1.second)
+		if (this->Xy1.first <= other.Xy2.first &&
+			this->Xy2.first >= other.Xy1.first &&
+			this->Xy1.second >= other.Xy2.second &&
+			this->Xy2.second <= other.Xy1.second)
 			return 1;
 		else return 0;
 	}
@@ -43,6 +43,14 @@ public:
 	{
 		return Xy2.first;
 	}
+	float getYLeft()
+	{
+		return Xy1.second;
+	}
+	float getYRight()
+	{
+		return Xy2.second;
+	}
 };
 
 struct PSprite
@@ -50,8 +58,17 @@ struct PSprite
 	float x, y,         //from where the sprites begin for an action
 		width, height,
 		Ox, Oy;         //origins
-	int nextWhen;       //when to switch to the next frame
+	int nextWhen;      //when to switch to the next frame
 	std::string nextFrame;   //which frame to switch to
+};
+
+struct attack
+{
+	int total, startup, active, recovery,
+		hitstun, blockstun;
+	float damage,
+		pushX, pushY, pushYAir;
+	box hitbox;
 };
 
 class base
@@ -66,8 +83,8 @@ protected:
 	float x, y;
 	side Facing;
 public:
-	base() : x(WINDOW_WIDTH / 2), y(ground), framesPassed(0), Facing(side::none) {}
-	base(float X, side Side) : x(X), y(ground), framesPassed(0), Facing(Side) {}
+	base() : x(WINDOW_WIDTH / 2), y(stage), framesPassed(0), Facing(side::none) {}
+	base(float X, side Side) : x(X), y(stage), framesPassed(0), Facing(Side) {}
 	~base() {}
 	
 	void loadSprites(sf::Texture* sheet, std::string animData)
@@ -110,7 +127,7 @@ public:
 		return Sprite;
 	}
 	
-	void setCoordinates(float xI, float yI)
+	virtual void setCoordinates(float xI, float yI)
 	{
 		x = xI;
 		y = yI;
@@ -125,12 +142,12 @@ public:
 		return y;
 	}
 
-	float wallCollision(box* enemyCollisionBox)
+	float wallCollision(box& enemyCollisionBox)
 	{
 		if (CollisionBox.Collision(enemyCollisionBox))
 		{
-			float temp1 = CollisionBox.getXLeft() - enemyCollisionBox->getXRight();
-			float temp2 = CollisionBox.getXRight() - enemyCollisionBox->getXLeft();
+			float temp1 = CollisionBox.getXLeft() - enemyCollisionBox.getXRight();
+			float temp2 = CollisionBox.getXRight() - enemyCollisionBox.getXLeft();
 			if (abs(temp1) <= abs(temp2))
 				return temp1;
 			else 
@@ -171,18 +188,28 @@ class character : public base
 {
 protected:
 	state State;
+	position Pos;
 	float dx, dy;
-	float forward_v = 4.f;
+	float forward_v = 7.f;
 	float backward_v = -3.f;
 	float jump_v = -12.f;
+	float health;
 	int air_action = 0;
-	bool FInput = 0;
-	bool BInput = 0;
+	bool FWInput = 0;
+	bool BWInput = 0;
 	bool NInput = 0;
 	bool JInput = 0;
+	bool AInput = 0;
+	bool BInput = 0;
+	bool IsAttackActive = 0;
+	attack CurrentAttack;
+	std::map<std::string, attack> Attacks;
+	int stun = 0;
+	box hurtbox, hitbox;
 public:
-	character() : State(neutral), dx(0.f), dy(0.f) {}
-	character(float X, side Side) : base(X,Side), State(neutral), dx(0.f), dy(0.f) {}
+	character() : State(neutral), dx(0.f), dy(0.f), forward_v(0), backward_v(0), jump_v(0), health(0) {}
+	character(float X, float fv, float bv, float jv, float hp, side Side) 
+		: base(X, Side), State(neutral), dx(0.f), dy(0.f), forward_v(fv), backward_v(bv), jump_v(jv), health(hp) {}
 	~character() {}
 
 	void WalkMovement(bool WalkF, bool WalkB)
@@ -195,40 +222,35 @@ public:
 				setNewSprite("idle1");
 				framesPassed = 0;
 			}
-			else
-				framesPassed++;
 			NInput = 1;
-			FInput = 0;
-			BInput = 0;
+			FWInput = 0;
+			BWInput = 0;
 		}
 		else
 			if (WalkF)
 			{
 				dx = forward_v;
-				if (!FInput)
+				if (!FWInput)
 				{
 					setNewSprite("run1");
 					framesPassed = 0;
 				}
-				else
-					framesPassed++;
-				FInput = 1;
+				FWInput = 1;
 				NInput = 0;
-				BInput = 0;
+				BWInput = 0;
 			}
 			else
 				if (WalkB)
 				{
 					dx = backward_v;
-					if (!BInput)
+					if (!BWInput)
 					{
 						setNewSprite("walkb1");
 						framesPassed = 0;
 					}
-					else framesPassed++;
-					BInput = 1;
+					BWInput = 1;
 					NInput = 0;
-					FInput = 0;
+					FWInput = 0;
 				}
 	}
 	void GroundMovement(bool Jump, bool WalkF, bool WalkB)
@@ -236,7 +258,7 @@ public:
 		WalkMovement(WalkF, WalkB);
 		if (Jump && air_action > 0 && !JInput)
 		{
-			State = state::air;
+			Pos = position::air;
 			JInput = 1;
 			dy = jump_v;
 			air_action--;
@@ -248,7 +270,7 @@ public:
 	{
 		if (Jump && air_action > 0 && !JInput)
 		{
-			State = state::air;
+			Pos = position::air;
 			WalkMovement(WalkF, WalkB);
 			dy = jump_v / 3 * 2;
 			air_action--;
@@ -257,9 +279,50 @@ public:
 			JInput = 0;
 	}
 
+	virtual void Attacking(bool A, bool B, bool WalkF, bool Walkb) = 0;
+	void LoadFrameData(std::string file)
+	{
+		std::ifstream fd(file);
+		std::string key;
+		attack temp;
+		while (fd >> key)
+		{
+			fd >> temp.total >> temp.startup >> temp.active >> temp.recovery >> temp.hitstun >> temp.blockstun >> temp.damage >> temp.pushX >> temp.pushY >> temp.pushYAir;
+			float X1, Y1, X2, Y2;
+			fd >> X1 >> Y1 >> X2 >> Y2;
+			temp.hitbox.setPoints(X1, Y1, X1 + X2, Y1 + Y2);
+			Attacks[key] = temp;
+		}
+	}
+	void Attackcheck(character& enemy)
+	{
+		if (framesPassed == CurrentAttack.startup)
+			IsAttackActive = 1;
+		if (framesPassed == CurrentAttack.active)
+			IsAttackActive = 0;
+		if (IsAttackActive)
+		{
+			hitbox.setPoints(x + CurrentAttack.hitbox.getXLeft(), y + CurrentAttack.hitbox.getYLeft(), x + CurrentAttack.hitbox.getXRight(), y + CurrentAttack.hitbox.getYRight());
+			if (hitbox.Collision(enemy.hurtbox))
+			{
+				enemy.State = state::hit;
+				enemy.stun = CurrentAttack.hitstun;
+				enemy.setNewSprite("hit");
+			}
+		}
+	}
+
+	int getStun()
+	{
+		return stun;
+	}
 	state getState()
 	{
 		return State;
+	}
+	position getPos()
+	{
+		return Pos;
 	}
 
 	float getDx()
@@ -280,15 +343,26 @@ public:
 	}
 	void groundCollision()                 //to not go straight through the floor
 	{
-		if (y >= ground)
+		if (y >= stage)
 		{
+			if (Pos != position::ground)
+			{
+				NInput = 0;
+				FWInput = 0;
+				BWInput = 0;
+				if (State == state::attacking)
+				{
+					State = neutral;
+					stun = 0;
+				}
+			}
 			dy = 0.f;
-			State = state::neutral;
-			y = ground;
-			air_action = 2;                
+			Pos = position::ground;
+			y = stage;
+			air_action = 2;
 		}
 	}
-	float pushCollision(box* enemyCollisionBox, float enemyDx)          //so that you push your opponent
+	float pushCollision(box& enemyCollisionBox, float enemyDx)          //so that you push your opponent
 	{
 		if (CollisionBox.Collision(enemyCollisionBox))
 			if (Facing == side::left && (dx > 0 || enemyDx < 0) ||
@@ -302,6 +376,13 @@ public:
 		else
 			return enemyDx;
 	}
+	void setCoordinates(float xI, float yI)
+	{
+		x = xI;
+		y = yI;
+		CollisionBox.setPoints(x - 10.f, y, x + 10.f, y - 80.f);
+		hurtbox.setPoints(x - 25.f, y, x + 25.f, y - 175.f);
+	}
 };
 
 class player : public character
@@ -310,17 +391,48 @@ protected:
 	sf::Keyboard::Key Walkf;
 	sf::Keyboard::Key Walkb;
 	sf::Keyboard::Key Jump;
+	sf::Keyboard::Key A;
+	sf::Keyboard::Key B;
 public:
 	player() : Walkf(sf::Keyboard::Key::D), Walkb(sf::Keyboard::Key::A), Jump(sf::Keyboard::Key::W) {}
-	player(float X, side Side, sf::Keyboard::Key F, sf::Keyboard::Key B, sf::Keyboard::Key J) : character(X, Side), Walkf(F), Walkb(B), Jump(J) {}
+	player(float X, float fv, float bv, float jv, float hp, side Side, sf::Keyboard::Key F, sf::Keyboard::Key B, sf::Keyboard::Key J, sf::Keyboard::Key Ain, sf::Keyboard::Key Bin) 
+		: character(X, fv, bv, jv, hp, Side), Walkf(F), Walkb(B), Jump(J), A(Ain), B(Bin) {}
 	~player() {}
-	void Input()
+	void Input(player& enemy)
 	{
+		framesPassed++;
 		setDy(getDy() + gravity);
-		if (getState() == state::neutral)
-			GroundMovement(sf::Keyboard::isKeyPressed(Jump), sf::Keyboard::isKeyPressed(Walkf), sf::Keyboard::isKeyPressed(Walkb));
-		if (getState() == state::air)
-			AirMovement(sf::Keyboard::isKeyPressed(Jump), sf::Keyboard::isKeyPressed(Walkf), sf::Keyboard::isKeyPressed(Walkb));
+		if (stun == 0)
+		{
+			if (State != state::neutral)
+			{
+				FWInput = 0;
+				BWInput = 0;
+				NInput = 0;
+			}
+			State = state::neutral;
+			if (getPos() == position::ground)
+				GroundMovement(sf::Keyboard::isKeyPressed(Jump), sf::Keyboard::isKeyPressed(Walkf), sf::Keyboard::isKeyPressed(Walkb));
+			if (getPos() == position::air)
+			{
+				AirMovement(sf::Keyboard::isKeyPressed(Jump), sf::Keyboard::isKeyPressed(Walkf), sf::Keyboard::isKeyPressed(Walkb));
+				if (dy < -3.f)
+					setNewSprite("jumprising");
+				else
+					if (abs(dy) < 3.f)
+						setNewSprite("jumphang");
+					else
+						if (dy > 3.f)
+							setNewSprite("jumpfall");
+			}
+			Attacking(sf::Keyboard::isKeyPressed(A), sf::Keyboard::isKeyPressed(B), Walkf, Walkb);
+		}
+		else
+		{
+			stun--;
+			if (State == state::attacking)
+				Attackcheck(enemy);
+		}
 	}
 	void swapInputs(bool didFacingChange)
 	{
@@ -333,5 +445,42 @@ public:
 			backward_v *= -1;
 		}
 	}
+	void AssingAttack(std::string key)
+	{
+		State = state::attacking;
+		CurrentAttack = Attacks[key];
+		setNewSprite(key);
+		stun = Attacks[key].total;
+	}
 };
 
+class swordguy : public player
+{
+public:
+	swordguy(float X, float fv, float bv, float jv, float hp, side Side, sf::Keyboard::Key F, sf::Keyboard::Key B, sf::Keyboard::Key J, sf::Keyboard::Key Ain, sf::Keyboard::Key Bin) 
+		: player(X, fv, bv, jv, hp, Side, F, B, J, Ain, Bin) {}
+	swordguy(const swordguy& temp) : player(temp.x, temp.forward_v, temp.backward_v, temp.jump_v, temp.health, temp.Facing, temp.Walkf, temp.Walkb, temp.Jump, temp.A, temp.B) {}
+	~swordguy() {}
+
+	void Attacking(bool A, bool B, bool WalkF, bool Walkb)
+	{
+		if (State == state::neutral)
+		{
+			if (Pos == position::ground)
+			{
+				if (A)
+					AssingAttack("5A");
+				if (B)
+					AssingAttack("5B");
+			}
+			if (Pos == position::air)
+			{
+				if (A)
+					AssingAttack("j.A");
+				if (B)
+					AssingAttack("j.B");
+			}
+		}
+	}
+
+};
